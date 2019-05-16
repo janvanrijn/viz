@@ -1,6 +1,7 @@
 import argparse
 import logging
 import matplotlib.pyplot as plt
+import numpy as np
 import sklearn.datasets
 
 
@@ -10,6 +11,39 @@ def parse_args():
     parser.add_argument('--x_feature', type=str, default='RM')
     parser.add_argument('--random_seed', type=int, default=42)
     return parser.parse_args()
+
+
+def linear_regression_sgd(x: np.array, y: np.array):
+    # http://mccormickml.com/2014/03/04/gradient-descent-derivation/
+    theta_0 = [0.0]
+    theta_b = [1.0]
+    pass
+
+
+def linear_regression_predict(x: np.array, theta_0: float, theta_b: float):
+    return theta_0 * x + theta_b
+
+
+def loss(y_hat: np.array, y_true: np.array):
+    if y_hat.shape != y_true.shape:
+        raise ValueError()
+    if len(y_hat.shape) > 1:
+        raise ValueError()
+    sum_errors = 0.0
+    for y_hat_i, y_true_i in zip(y_hat, y_true):
+        sum_errors += (y_hat_i - y_true_i) ** 2
+    return sum_errors / len(y_hat)
+
+
+def delta_loss(y_hat, y_true):
+    if y_hat.shape != y_true.shape:
+        raise ValueError()
+    if len(y_hat.shape) > 1:
+        raise ValueError()
+    sum_errors = 0.0
+    for y_hat_i, y_true_i in zip(y_hat, y_true):
+        sum_errors += y_hat_i - y_true_i
+    return 2 / len(y_hat) * sum_errors
 
 
 def run(args):
@@ -30,6 +64,7 @@ def run(args):
     ax1.scatter(X, y)
     ax1.set_xlabel(args.x_feature)
     ax1.set_ylabel(bunch.details['default_target_attribute'])
+    ax1.set_title(args.dataset_name)
     plt.show()
 
 
