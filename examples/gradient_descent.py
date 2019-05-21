@@ -6,11 +6,13 @@ import sklearn.datasets
 import typing
 
 
+# https://becominghuman.ai/paper-repro-learning-to-learn-by-gradient-descent-by-gradient-descent-6e504cc1c0de
 def parse_args():
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_name', type=str, default='boston')
     parser.add_argument('--x_feature', type=str, default='RM')
     parser.add_argument('--alpha', type=float, default=0.02)
+    parser.add_argument('--delta', type=float, default=0.001)
     parser.add_argument('--random_seed', type=int, default=42)
     return parser.parse_args()
 
@@ -48,14 +50,14 @@ def delta_theta_b(x: np.array, y_true: np.array, theta_0: float, theta_b: float)
     return sum(errors) / len(y_true)
 
 
-def linear_regression_sgd(x: np.array, y: np.array, alpha: float) -> typing.Tuple[typing.List, typing.List, typing.List]:
+def linear_regression_sgd(x: np.array, y: np.array, alpha: float, delta: float) -> typing.Tuple[typing.List, typing.List, typing.List]:
     # http://mccormickml.com/2014/03/04/gradient-descent-derivation/
     theta_0 = [1.0]
     theta_b = [0.0]
     loss = [loss_score(x, y, theta_0[-1], theta_b[-1])]
     logging.info('Initial values, theta_0 = %f, theta_b = %f, loss = %f' % (theta_0[-1], theta_b[-1], loss[-1]))
 
-    while len(loss) <= 10 or loss[-1] < loss[-2]:
+    while len(loss) <= 10 or loss[-1] < loss[-2] - delta:
         delta_theta_0_i = delta_theta_0(x, y, theta_0[-1], theta_b[-1])
         delta_theta_b_i = delta_theta_b(x, y, theta_0[-1], theta_b[-1])
         theta_0_i = theta_0[-1] - alpha * delta_theta_0_i
@@ -87,7 +89,7 @@ def run(args):
         raise ValueError('Problem with data shapes. X %s, y %s' % (X.shape, y.shape))
 
     # perform SGD
-    theta_0, theta_b, loss = linear_regression_sgd(X, y, args.alpha)
+    theta_0, theta_b, loss = linear_regression_sgd(X, y, args.alpha, args.delta)
 
     # Creates two subplots and unpacks the output array immediately
     f, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(24, 6))
